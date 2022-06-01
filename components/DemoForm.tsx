@@ -174,6 +174,28 @@ const DemoCustom = () => {
   );
 };
 
+// const ListenerList = () => {
+//   const { data, error, isLoading } = useListeners();
+//   console.log(data, error, isLoading);
+//   return (
+//     <Box>
+//       <Heading fontSize="lg" mb={4}>
+//         Subscriptions
+//       </Heading>
+//       <List>
+//         {!data?.length ? <ListItem>No listeners yet</ListItem> : null}
+//         {data?.map((sub) => (
+//           <ListItem key={sub.created_at}>
+//             {sub.address}
+
+//             <pre>{JSON.stringify(sub.subscription, null, 2)}</pre>
+//           </ListItem>
+//         ))}
+//       </List>
+//     </Box>
+//   );
+// };
+
 const Demo = () => {
   return (
     <Container maxW="container.md">

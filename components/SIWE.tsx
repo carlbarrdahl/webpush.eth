@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useAccount, useNetwork, useSignMessage } from "wagmi";
 import Button from "./Button";
 
-import axios from "../lib/axios";
 import { SiweMessage } from "siwe";
+import axios from "axios";
 
 function useSignIn() {
   const { data } = useAccount();

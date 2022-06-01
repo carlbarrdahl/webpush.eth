@@ -228,3 +228,8 @@ function createPayload(event: string, args: any[], abi = []) {
     {}
   );
 }
+
+supabase
+  .from("topic_users")
+  .select("user")
+  .then((r) => console.log(r));
