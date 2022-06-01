@@ -76,7 +76,7 @@ function useSession() {
     })
   );
   useEffect(() => {
-    if (!id) {
+    if (!id && !session.isLoading) {
       session.mutate();
     }
   }, [id, session]);

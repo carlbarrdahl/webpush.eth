@@ -24,7 +24,11 @@ const SUPABASE_URL = process.env.SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY as string;
 
 // Setup Vapid Push
-webPush.setVapidDetails(VERCEL_URL, VAPID_PUBLIC_KEY, VAPID_SECRET_KEY);
+webPush.setVapidDetails(
+  NODE_ENV === "production" ? "https://" : "http://" + VERCEL_URL,
+  VAPID_PUBLIC_KEY,
+  VAPID_SECRET_KEY
+);
 
 // Setup Web3 wallets for different networks to listen to contract events
 const supportedChains = [1, 4];
