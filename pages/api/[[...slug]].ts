@@ -25,7 +25,7 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY as string;
 
 // Setup Vapid Push
 webPush.setVapidDetails(
-  NODE_ENV === "production" ? "https://" : "http://" + VERCEL_URL,
+  (NODE_ENV === "production" ? "https://" : "http://") + VERCEL_URL,
   VAPID_PUBLIC_KEY,
   VAPID_SECRET_KEY
 );
