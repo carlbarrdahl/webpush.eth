@@ -22,4 +22,4 @@ const testData = {
   amount: { _hex: "0x0de0b6b3a7640000", _isBigNumber: true },
 };
 
-console.log(templates({ event: "Transfer", payload: testData }));
+console.log("Test event", templates({ event: "Transfer", payload: testData }));

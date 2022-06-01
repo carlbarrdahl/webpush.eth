@@ -112,7 +112,7 @@ export default nc<NextApiRequest, NextApiResponse>({ attachParams: true })
       });
   });
 
-events.on("subscribe", async ({ abi, address, event, args, user }) => {
+events.on("subscribe", async ({ abi, address, event, args, user, network }) => {
   console.log("Register contract topic listener", event, args);
 
   // Create contract and listener
@@ -123,7 +123,13 @@ events.on("subscribe", async ({ abi, address, event, args, user }) => {
     args,
   });
 
-  const topic_id = createTopicId({ address, event, abi: contract.abi, args });
+  const topic_id = createTopicId({
+    address,
+    event,
+    abi: contract.abi,
+    args,
+    network,
+  });
 
   // Store topic
   await supabase
@@ -133,6 +139,7 @@ events.on("subscribe", async ({ abi, address, event, args, user }) => {
       contract: address,
       event,
       args,
+      network,
       abi: contract.abi,
     })
     .then((r) => console.log("Stored topic", r));
@@ -163,6 +170,7 @@ async function onStartup() {
   topics?.forEach(setupContract);
 }
 function setupContract(t) {
+  console.log(getWallet(t.network));
   const contract = new Contract(t.contract, t.abi, getWallet(t.network));
   const topic = contract.filters[t.event](...t.args);
 

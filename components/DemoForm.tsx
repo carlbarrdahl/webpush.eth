@@ -5,6 +5,8 @@ import {
   Box,
   Container,
   Divider,
+  VStack,
+  StackDivider,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -13,8 +15,11 @@ import {
   List,
   ListItem,
   Select,
+  Text,
   Textarea,
+  IconButton,
 } from "@chakra-ui/react";
+import { BellIcon, CheckIcon } from "@chakra-ui/icons";
 
 import { CreatableSelect } from "chakra-react-select";
 import { useController, useForm } from "react-hook-form";
@@ -88,7 +93,7 @@ const eventOptions = [
 const DemoCustom = () => {
   const { data } = useAccount();
 
-  const { activeChain } = useNetwork();
+  const { activeChain, chains } = useNetwork();
   const subscribe = useSubscribe();
   const approve = useRegisterPush();
 
@@ -105,6 +110,7 @@ const DemoCustom = () => {
         null,
         2
       ),
+      network: 4,
     },
   });
 
@@ -118,6 +124,7 @@ const DemoCustom = () => {
               event: form.event.value,
               abi: JSON.parse(form.abi),
               args: JSON.parse(form.args),
+              network: form.network,
             }),
         });
       })}
@@ -157,6 +164,16 @@ const DemoCustom = () => {
           {...register("args")}
           rows={6}
         ></Textarea>
+      </FormControl>
+      <FormControl>
+        <FormLabel>Network</FormLabel>
+        <Select {...register("network", { valueAsNumber: true })}>
+          {chains.map((chain) => (
+            <option key={chain.id} value={chain.id}>
+              {chain.name}
+            </option>
+          ))}
+        </Select>
       </FormControl>
       <HStack justify={"flex-end"} mt={4}>
         <Button
@@ -198,11 +215,32 @@ const ListenerList = () => {
   );
 };
 
+const Examples = () => (
+  <VStack
+    divider={<StackDivider borderColor="gray.200" />}
+    spacing={2}
+    align="stretch"
+  >
+    <Heading fontSize={"md"}>Notify me when:</Heading>
+    <HStack justify={"space-between"}>
+      <Text fontSize="sm">LINK transfers to me on Rinkeby</Text>
+      <Button variant={"ghost"} leftIcon={<BellIcon />}>
+        Notify
+      </Button>
+    </HStack>
+    <HStack justify={"space-between"}>
+      <Text fontSize="sm">New proposal is created in NounsDAO</Text>
+      <Button variant={"ghost"} leftIcon={<CheckIcon />}>
+        Unsub
+      </Button>
+    </HStack>
+  </VStack>
+);
 const Demo = () => {
   return (
     <Container maxW="container.md">
       <DemoCustom />
-      <ListenerList />
+      {/* <ListenerList /> */}
     </Container>
   );
 };

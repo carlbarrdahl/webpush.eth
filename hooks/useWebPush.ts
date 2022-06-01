@@ -101,6 +101,7 @@ interface ContractSubscription {
   abi: string;
   event: string;
   args: string;
+  network: number;
 }
 export function useSubscribe() {
   return useMutation(async (params: ContractSubscription) =>
