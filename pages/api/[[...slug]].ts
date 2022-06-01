@@ -104,7 +104,7 @@ export default nc<NextApiRequest, NextApiResponse>({ attachParams: true })
     }
     supabase
       .from("subscriptions")
-      .select("id, user, subscription, created_at")
+      .select("user, subscription, created_at")
       .eq("user", user)
       .then((r) => {
         console.log(r);
@@ -234,6 +234,26 @@ function createPayload(event: string, args: any[], abi = []) {
 }
 
 supabase
-  .from("topic_users")
-  .select("user")
+  .from("subs")
+  .select(
+    `
+    subscription
+  `
+  )
+  .eq("topic", "topicId")
   .then((r) => console.log(r));
+
+const model = {
+  subscriptions: {
+    user: "uuid",
+    topic: "id",
+    subscription: "json",
+  },
+  topics: {
+    id: "sha256",
+    event: "Event",
+    contract: "0x",
+    abi: "json",
+    args: "json",
+  },
+};

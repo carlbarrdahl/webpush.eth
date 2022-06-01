@@ -9,6 +9,7 @@ import { publicProvider } from "wagmi/providers/public";
 import { ChakraProvider } from "@chakra-ui/react";
 import { AppType } from "next/dist/shared/lib/utils";
 import { QueryClientProvider } from "react-query";
+import WebPushProvider from "../components/Provider";
 
 const APP_NAME = "webpush.eth";
 
@@ -30,7 +31,9 @@ const App: AppType = ({ Component, pageProps }) => {
       <RainbowKitProvider chains={chains}>
         <QueryClientProvider client={wagmiClient.queryClient}>
           <ChakraProvider>
-            <Component {...pageProps} />
+            <WebPushProvider worker="./sw.js">
+              <Component {...pageProps} />
+            </WebPushProvider>
           </ChakraProvider>
         </QueryClientProvider>
       </RainbowKitProvider>

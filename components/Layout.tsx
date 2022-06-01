@@ -3,10 +3,7 @@ import Head from "next/head";
 import { Text, HStack, Flex, Container } from "@chakra-ui/react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
-import { useServiceWorker } from "../hooks/useServiceWorker";
-
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  useServiceWorker("./sw.js");
   return (
     <Flex flexDirection={"column"} h="100vh">
       <Head>

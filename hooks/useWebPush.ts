@@ -19,8 +19,6 @@ export function useMe() {
 }
 
 export function useRegisterPush() {
-  useSession();
-
   const [isApproved, setApproved] = useState(false);
   const [pushManager, setPush] = useState<PushManager | null>(null);
 
@@ -67,12 +65,26 @@ export function useRegisterPush() {
 }
 
 const STORAGE_UUID = "webpush.eth/uuid";
-function useSession() {
-  const [id, setId] = useState(localStorage.getItem(STORAGE_UUID));
+const storage = {
+  getItem: (key) => {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {}
+  },
+  setItem: (key, val) => {
+    try {
+      return localStorage.setItem(key, val);
+    } catch (error) {}
+  },
+};
+export function useSession() {
+  const [id, setId] = useState(() => storage.getItem(STORAGE_UUID));
   const session = useMutation(() =>
     axios.post(QUERIES.session).then((r) => {
-      localStorage.setItem(STORAGE_UUID, r.data.id);
-      return setId(r.data.id);
+      const { id } = r.data;
+      if (!id) return null;
+      storage.setItem(STORAGE_UUID, id);
+      return setId(id);
     })
   );
   useEffect(() => {
