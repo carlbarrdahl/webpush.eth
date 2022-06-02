@@ -263,7 +263,10 @@ const Examples = () => {
           <Button
             variant={"ghost"}
             leftIcon={<BellIcon />}
-            onClick={() => subscribe.mutate(ex.data)}
+            onClick={() => {
+              // @ts-ignore
+              subscribe.mutate(ex.data);
+            }}
           >
             Notify
           </Button>
