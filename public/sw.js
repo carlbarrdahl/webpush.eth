@@ -4,13 +4,17 @@ const templates = ({ event, payload }) => {
       title: "LINK Received!",
       body: `You have received ${p.amount._hex / 1e18} LINK from ${p.from}`,
     }),
+    VoteCast: (p) => ({
+      title: "Vote Cast!",
+      body: `A Vote has been cast in NounsDAO`,
+    }),
   };
   return map[event](payload) || { title: event, body: JSON.stringify(payload) };
 };
 
 self.addEventListener("push", function (e) {
-  const { event, payload } = e.data ? e.data.json() : {};
-  console.log(event, payload);
+  const { event, address, payload } = e.data ? e.data.json() : {};
+  console.log(event, address, payload);
   const { title, body } = templates({ event, payload });
   console.log(title, body);
   e.waitUntil(self.registration.showNotification(title, { body }));
