@@ -28,6 +28,8 @@ import {
   useSubscribe,
   useSubscriptions,
 } from "../hooks/useWebPush";
+import { useWebPush } from "./Provider";
+import ErrorMessage from "./ErrorMessage";
 
 const ControlledSelect = ({ control, name, id, label, rules, ...props }) => {
   const {
@@ -114,6 +116,7 @@ const DemoCustom = () => {
     },
   });
 
+  console.log("approve", approve.data);
   return (
     <form
       onSubmit={handleSubmit((form) => {
@@ -177,7 +180,7 @@ const DemoCustom = () => {
       </FormControl>
       <HStack justify={"flex-end"} mt={4}>
         <Button
-          disabled={isApproved}
+          // disabled={isApproved}
           colorScheme={"gray"}
           onClick={() => approve.mutate()}
         >
@@ -191,6 +194,8 @@ const DemoCustom = () => {
           Subscribe to event
         </Button>
       </HStack>
+      <Divider my={4} />
+      <ErrorMessage error={approve.error} />
     </form>
   );
 };
@@ -215,30 +220,72 @@ const ListenerList = () => {
   );
 };
 
-const Examples = () => (
-  <VStack
-    divider={<StackDivider borderColor="gray.200" />}
-    spacing={2}
-    align="stretch"
-  >
-    <Heading fontSize={"md"}>Notify me when:</Heading>
-    <HStack justify={"space-between"}>
-      <Text fontSize="sm">LINK transfers to me on Rinkeby</Text>
-      <Button variant={"ghost"} leftIcon={<BellIcon />}>
-        Notify
-      </Button>
-    </HStack>
-    <HStack justify={"space-between"}>
-      <Text fontSize="sm">New proposal is created in NounsDAO</Text>
-      <Button variant={"ghost"} leftIcon={<CheckIcon />}>
-        Unsub
-      </Button>
-    </HStack>
-  </VStack>
-);
+const examples = [
+  {
+    description: "Goblin transfer",
+    data: {
+      address: "0xbce3781ae7ca1a5e050bd9c4c77369867ebc307e",
+      event: "Transfer",
+      args: [],
+      abi: [
+        "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
+      ],
+
+      network: 1,
+    },
+  },
+  {
+    description: "Vote cast in NounsDAO",
+    data: {
+      address: "0x6f3E6272A167e8AcCb32072d08E0957F9c79223d",
+      event: "VoteCast",
+      args: [],
+      abi: [
+        "event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 votes, string reason)",
+      ],
+
+      network: 1,
+    },
+  },
+];
+const Examples = () => {
+  const subscribe = useSubscribe();
+  return (
+    <VStack
+      divider={<StackDivider borderColor="gray.200" />}
+      spacing={2}
+      align="stretch"
+    >
+      <Heading fontSize={"md"}>Notify me when:</Heading>
+      {examples.map((ex, i) => (
+        <HStack key={i} justify={"space-between"}>
+          <Text fontSize="sm">{ex.description}</Text>
+          <Button
+            variant={"ghost"}
+            leftIcon={<BellIcon />}
+            onClick={() => subscribe.mutate(ex.data)}
+          >
+            Notify
+          </Button>
+        </HStack>
+      ))}
+
+      {/* <HStack justify={"space-between"}>
+        <Text fontSize="sm">New proposal is created in NounsDAO</Text>
+        <Button variant={"ghost"} leftIcon={<CheckIcon />}>
+          Unsub
+        </Button>
+      </HStack> */}
+    </VStack>
+  );
+};
 const Demo = () => {
+  const asd = useWebPush();
+  console.log(45345, asd);
   return (
     <Container maxW="container.md">
+      <Examples />
+      <Divider my={8} />
       <DemoCustom />
       {/* <ListenerList /> */}
     </Container>

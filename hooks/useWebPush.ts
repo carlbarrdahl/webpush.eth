@@ -1,15 +1,17 @@
-import axios from "axios";
+import _axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 
+const baseURL = "https://webpusheth.carlbarrdahl.repl.co";
+const axios = _axios.create({ baseURL });
 const QUERIES = {
-  me: "/api/me",
-  vapid: "/api/vapid",
-  register: "/api/register",
-  subscribe: "/api/subscribe",
-  session: "/api/session",
-  subscriptions: "/api/subscriptions",
-  unsubscribe: "/api/unsubscribe",
+  me: "/me",
+  vapid: "/vapid",
+  register: "/register",
+  subscribe: "/subscribe",
+  session: "/session",
+  subscriptions: "/subscriptions",
+  unsubscribe: "/unsubscribe",
 };
 
 export function useMe() {
@@ -18,9 +20,17 @@ export function useMe() {
   );
 }
 
+/*
+1. Get Vapid Key
+2. Get Service Worker registration
+  - Set PushManager
+  - Check PermissionState
+3. Create handler to get subscription (opens up Allow Notification dialog)
+*/
 export function useRegisterPush() {
   const [isApproved, setApproved] = useState(false);
   const [pushManager, setPush] = useState<PushManager | null>(null);
+  const [subscription, setSub] = useState<PushSubscription | null>(null);
 
   const vapid = useQuery([QUERIES.vapid], () =>
     axios.get<{ vapidKey: string }>(QUERIES.vapid).then((r) => r.data.vapidKey)
@@ -37,9 +47,9 @@ export function useRegisterPush() {
     // @ts-ignore
     navigator.serviceWorker.ready.then((reg) => {
       setPush(reg.pushManager);
-      return reg.pushManager
-        .permissionState(pushOpts)
-        .then((state) => setApproved(state === "granted"));
+      return reg.pushManager.permissionState(pushOpts).then((state) => {
+        setApproved(state === "granted");
+      });
     });
   }, [pushOpts]);
 
@@ -48,19 +58,20 @@ export function useRegisterPush() {
       console.log("sub", subscription);
       return (
         subscription ||
-        pushManager
-          ?.subscribe(pushOpts)
-          .then((subscription) =>
-            axios.post(QUERIES.register, { subscription })
-          )
-          .then(() => setApproved(true))
+        pushManager?.subscribe(pushOpts).then((subscription) => {
+          setSub(subscription);
+          setApproved(!!subscription);
+        })
       );
     })
   );
 
+  console.log("err", register.error);
+  console.log("sub", subscription);
+
   return {
     ...register,
-    data: { isApproved },
+    data: { isApproved, subscription, allow: register.mutate },
   };
 }
 
@@ -102,11 +113,26 @@ interface ContractSubscription {
   event: string;
   args: string;
   network: number;
+  // subscription: PushSubscription;
+}
+
+function useSubscription() {
+  const [sub, setSub] = useState<PushSubscription | null>(null);
+  useEffect(() => {
+    navigator.serviceWorker.ready
+      .then((sw) => sw.pushManager.getSubscription())
+      .then(setSub);
+  }, []);
+  return sub;
 }
 export function useSubscribe() {
-  return useMutation(async (params: ContractSubscription) =>
-    axios.post(QUERIES.subscribe, params)
-  );
+  const subscription = useSubscription();
+
+  console.log("useSubscribe", subscription);
+  return useMutation(async (params: ContractSubscription) => {
+    console.log(params);
+    return axios.post(QUERIES.subscribe, { ...params, subscription });
+  });
 }
 
 export function useSubscriptions() {
