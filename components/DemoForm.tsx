@@ -288,8 +288,8 @@ const Examples = () => {
             variant={"ghost"}
             leftIcon={<BellIcon />}
             onClick={async () => {
-              // @ts-ignore
               await approve.mutateAsync();
+              // @ts-ignore
               subscribe.mutate(ex.data);
             }}
           >
