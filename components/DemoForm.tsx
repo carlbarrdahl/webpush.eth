@@ -222,6 +222,19 @@ const ListenerList = () => {
 
 const examples = [
   {
+    description: "Vote cast in NounsDAO",
+    data: {
+      address: "0x6f3E6272A167e8AcCb32072d08E0957F9c79223d",
+      event: "VoteCast",
+      args: [],
+      abi: [
+        "event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 votes, string reason)",
+      ],
+
+      network: 1,
+    },
+  },
+  {
     description: "Goblin transfer",
     data: {
       address: "0xbce3781ae7ca1a5e050bd9c4c77369867ebc307e",
@@ -235,20 +248,21 @@ const examples = [
     },
   },
   {
-    description: "Vote cast in NounsDAO",
+    description: "Post created in Lens Protocol",
     data: {
-      address: "0x6f3E6272A167e8AcCb32072d08E0957F9c79223d",
-      event: "VoteCast",
+      address: "0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d",
+      event: "PostCreated",
       args: [],
       abi: [
-        "event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 votes, string reason)",
+        "event PostCreated(uint256 indexed profileId, uint256 indexed pubId, string contentURI, address collectModule, bytes collectModuleReturnData, address referenceModule, bytes referenceModuleReturnData, uint256 timestamp)",
       ],
-
-      network: 1,
+      network: 137,
     },
+    disabled: true,
   },
 ];
 const Examples = () => {
+  const approve = useRegisterPush();
   const subscribe = useSubscribe();
   return (
     <VStack
@@ -258,13 +272,24 @@ const Examples = () => {
     >
       <Heading fontSize={"md"}>Notify me when:</Heading>
       {examples.map((ex, i) => (
-        <HStack key={i} justify={"space-between"}>
-          <Text fontSize="sm">{ex.description}</Text>
+        <HStack
+          key={i}
+          justify={"space-between"}
+          opacity={ex.disabled ? 0.5 : 1}
+          pointerEvents={ex.disabled ? "none" : "auto"}
+        >
+          <Box>
+            <Text fontSize="md">{ex.description}</Text>
+            {![1, 4].includes(ex.data.network) ? (
+              <Text fontSize={"xs"}>Network not supported yet</Text>
+            ) : null}
+          </Box>
           <Button
             variant={"ghost"}
             leftIcon={<BellIcon />}
-            onClick={() => {
+            onClick={async () => {
               // @ts-ignore
+              await approve.mutateAsync();
               subscribe.mutate(ex.data);
             }}
           >
@@ -273,6 +298,7 @@ const Examples = () => {
         </HStack>
       ))}
 
+      <ErrorMessage error={subscribe.error} />
       {/* <HStack justify={"space-between"}>
         <Text fontSize="sm">New proposal is created in NounsDAO</Text>
         <Button variant={"ghost"} leftIcon={<CheckIcon />}>
@@ -289,6 +315,7 @@ const Demo = () => {
     <Container maxW="container.md">
       <Examples />
       <Divider my={8} />
+      <Heading fontSize={"md"}>Configure your own:</Heading>
       <DemoCustom />
       {/* <ListenerList /> */}
     </Container>
