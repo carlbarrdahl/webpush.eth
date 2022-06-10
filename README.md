@@ -53,7 +53,7 @@ function App() {
 }
 ```
 
-### 3. Enabled Push Notifications and subscribe to events
+### 3. Enable Push Notifications and subscribe to events
 
 ```tsx
 import { useRegisterPush, useSubscribe } from "@webpush.eth/react";
