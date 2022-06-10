@@ -1,34 +1,91 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# webpush.eth
 
-## Getting Started
+Simple way to subscribe to push notifications from your dApp.
 
-First, run the development server:
+Possible use-cases include:
 
-```bash
-npm run dev
-# or
-yarn dev
+- Get notified when DAO creates a new proposal or executes one
+- Receive updates when tokens are transfered to or from an address
+- When someone mints and NFT
+- Or just simply when a transaction has finished.
+
+## Getting started
+
+```sh
+yarn add @webpush.eth/react
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 1. Create Service Worker script
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```ts
+// public/sw.js
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+// Listen for incoming push events
+self.addEventListener("push", function (e) {
+  const { event, payload } = e.data ? e.data.json() : {};
+  // Select template
+  const { title, body } = templates({ event, payload });
+  // Show notification
+  e.waitUntil(self.registration.showNotification(title, { body }));
+});
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+// Describe templates
+const templates = ({ event, payload }) => {
+  const map = {
+    Transfer: (p) =>
+      `You have received ${p.amount._hex / 1e18} LINK from ${p.from}`,
+  };
+  return map[event](payload) || { title: event, body: JSON.stringify(payload) };
+};
+```
 
-## Learn More
+### 2. Load worker in your app
 
-To learn more about Next.js, take a look at the following resources:
+```ts
+// src/App.tsx
+import { WebPushProvider } from "@webpush.eth/react";
+function App() {
+  return (
+    <WebPushProvider worker="./sw.js">
+      <SubscribeToPush />
+    </WebPushProvider>
+  );
+}
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Enabled Push Notifications and subscribe to events
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```tsx
+import { useRegisterPush, useSubscribe } from "@webpush.eth/react";
 
-## Deploy on Vercel
+function SubscribeToPush() {
+  const approve = useRegisterPush();
+  const subscribe = useSubscribe();
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+  return (
+    <Button
+      isLoading={approve.isLoading || subscribe.isLoading}
+      onClick={async () => {
+        // Trigger approval of push notifications
+        approve.mutate().then(() =>
+          // Subscribe to event
+          subscribe.mutate({
+            // Contract address
+            address: "0x...",
+            // Contract event to subscribe to
+            event: "Transfer",
+            // Contract ABI (or fragment of it)
+            abi: [
+              "event Transfer(address indexed from, address indexed to, uint amount)",
+            ],
+            // Arguments for event
+            args: [null, "0x..."],
+          })
+        );
+      }}
+    >
+      Subscribe to Push notifications
+    </Button>
+  );
+}
+```
