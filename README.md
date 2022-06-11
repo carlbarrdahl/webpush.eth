@@ -7,9 +7,16 @@ Possible use-cases include:
 - Get notified when DAO creates a new proposal or executes one
 - Receive updates when tokens are transfered to or from an address
 - When someone mints and NFT
+- Engage with users in your game
 - Or just simply when a transaction has finished.
 
-## Getting started
+Uses web-native push notifications (https://web.dev/push-notifications-overview) to display notifications in your browser (desktop or mobile).
+
+Demo: https://webpush-two.vercel.app
+
+## Integration with your dApp
+
+Work in progress. Please reach out if you want to implement in your dApp!
 
 ```sh
 yarn add @webpush.eth/react
@@ -89,3 +96,9 @@ function SubscribeToPush() {
   );
 }
 ```
+
+### Current limitations
+
+- Support in iPhone not ready?
+- Brave browsers deny Vapid host from google
+  - https://github.com/brave/brave-browser/issues/2301#issuecomment-570114852
